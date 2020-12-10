@@ -336,3 +336,36 @@ importance(model_rf_s)
 calc_auc(pred_train_rf_s, df_train$TARGET) # score: 0.9871939
 calc_auc(pred_test_rf_s, df_test$TARGET) # score: 0.6588263
 plot_auc(pred_test_rf_s, df_test$TARGET)
+
+
+# Test: 3 variables
+model_rf_3 <- randomForest(TARGET~EXT_SOURCE_1+EXT_SOURCE_2+EXT_SOURCE_3, data=df_train)
+pred_train_rf_3 <- predict(model_rf_s, newdata=df_train)
+pred_test_rf_3 <- predict(model_rf_s, newdata=df_test)
+importance(model_rf_3)
+
+calc_auc(pred_train_rf_3, df_train$TARGET) # score: 0.9871939
+calc_auc(pred_test_rf_3, df_test$TARGET) # score: 0.6588263
+plot_auc(pred_test_rf_3, df_test$TARGET)
+
+
+# Test: 2 variables
+model_rf_2 <- randomForest(TARGET~EXT_SOURCE_1+EXT_SOURCE_2, data=df_train)
+pred_train_rf_2 <- predict(model_rf_s, newdata=df_train)
+pred_test_rf_2 <- predict(model_rf_s, newdata=df_test)
+importance(model_rf_2)
+
+calc_auc(pred_train_rf_2, df_train$TARGET) # score: 0.9871939
+calc_auc(pred_test_rf_2, df_test$TARGET) # score: 0.6588263
+plot_auc(pred_test_rf_2, df_test$TARGET)
+
+
+# Test: 1 variables
+model_rf_1 <- randomForest(TARGET~EXT_SOURCE_1, data=df_train)
+pred_train_rf_1 <- predict(model_rf_s, newdata=df_train)
+pred_test_rf_1 <- predict(model_rf_s, newdata=df_test)
+importance(model_rf_1)
+
+calc_auc(pred_train_rf_1, df_train$TARGET) # score: 0.9871939
+calc_auc(pred_test_rf_1, df_test$TARGET) # score: 0.6588263
+plot_auc(pred_test_rf_1, df_test$TARGET)
