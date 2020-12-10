@@ -340,3 +340,76 @@ importance(model_rf_s)
 calc_auc(pred_train_rf_s, df_train$TARGET) # score: 0.9871939
 calc_auc(pred_test_rf_s, df_test$TARGET) # score: 0.6588263
 plot_auc(pred_test_rf_s, df_test$TARGET)
+
+
+
+
+
+#Mina's part
+library(mlbench)
+library(caret)
+
+str(train)
+train$TARGET = as.factor(train$TARGET)
+
+# Test: all variables
+modelrf <- randomForest(TARGET ~ ., data = train, ntree = 100, mtry = 8, importance = TRUE)
+modelrf
+
+# Fiting into the model for all the variables
+modelrf_imp <- randomForest(TARGET~., data = train, ntree = 100, mtry = 8, importance = TRUE)
+confusionMatrix(table(modelrf_imp$predicted,train$TARGET)) #Accurecy score: 0.6651
+
+pred_train = predict(modelrf,newdata = train)
+pred_test = predict(modelrf,newdata=test)
+
+# ROC for trainset
+pred_train <- predict(modelrf,train,type = 'prob')
+pred_train <- prediction(pred_train[,2],train$TARGET)
+
+roc <- performance(pred_train,"tpr","fpr")
+plot(roc,colorize=T,main="ROC curve",xlab="1-Specificity",ylab="Sensitivity")
+abline(a=0,b=1)
+
+# ROC for testset
+pred_test <- predict(modelrf,test,type = 'prob')
+pred_test <- prediction(pred_test[,2],test$TARGET)
+
+roc <- performance(pred_test,"tpr","fpr")
+plot(roc,colorize=T,main="ROC curve",xlab="1-Specificity",ylab="Sensitivity")
+abline(a=0,b=1)
+
+
+# Test model with important feature
+imp <- importance(modelrf,type=1,sort=TRUE)
+impvar <- rownames(imp)[order(imp[, 1], decreasing=TRUE)]
+impvar
+
+# Choosing the model mapping
+fit <- TARGET ~ INTER_EXT_SOURCE_2_3+INTER_EXT_SOURCE_3_1+INTER_EXT_SOURCE_1_2+EXT_SOURCE_3+EXT_SOURCE_2
+
+# Fiting into the model with important variables
+modelrf_imp <- randomForest(fit, data = train, ntree = 100, mtry = 8, importance = TRUE)
+confusionMatrix(table(modelrf_imp$predicted,train$TARGET)) #Accurecy Score: 
+
+# ROC for important variables
+pred_train <- predict(modelrf_imp,train,type = 'prob')
+pred_train <- prediction(pred_train[,2],train$TARGET)
+
+roc <- performance(pred_train,"tpr","fpr")
+plot(roc,colorize=T,main="ROC curve",xlab="1-Specificity",ylab="Sensitivity")
+abline(a=0,b=1)
+
+# Cross validation
+control <- trainControl(method='repeatedcv', number=10, repeats=1, search='grid')
+
+tunegrid <- expand.grid(.mtry = c(4,6,8,10),.ntree=c(100,150)) 
+
+rf_gridsearch <- train(TARGET ~ ., data = train, method = 'rf', metric = 'Accuracy', tuneGrid = tunegrid)
+
+print(rf_gridsearch)
+plot(rf_gridsearch)
+rf_gridsearch$final_model
+
+predict(rf_gridsearch$final_model,test)
+
